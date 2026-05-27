@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
-import { Send, Plus, Trash2, MessageSquare } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Send, Plus, Trash2, MessageSquare, Bot } from "lucide-react";
 import {
   useListOpenaiConversations,
   useCreateOpenaiConversation,
@@ -10,7 +8,6 @@ import {
   useListOpenaiMessages,
   getListOpenaiConversationsQueryKey,
   getListOpenaiMessagesQueryKey,
-  getGetOpenaiConversationQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,8 +24,6 @@ export default function Chat() {
   const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const BASE = import.meta.env.BASE_URL;
-
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
   const { data: conversations } = useListOpenaiConversations({
     query: { queryKey: getListOpenaiConversationsQueryKey() },
@@ -111,79 +106,133 @@ export default function Chat() {
   const allMessages = messages ?? [];
 
   return (
-    <div className="flex h-[calc(100dvh-120px)] gap-0 -mx-4 -mt-4">
-      <aside className="w-16 flex flex-col gap-2 p-2 border-r border-white/10 bg-black/30 overflow-y-auto">
-        <button onClick={createConversation} className="w-10 h-10 rounded-lg bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30 flex items-center justify-center transition-colors active:scale-95 mx-auto flex-shrink-0" data-testid="btn-new-chat">
+    <div className="flex -mx-4 -mt-5" style={{ height: 'calc(100dvh - 76px)' }}>
+
+      {/* Sidebar */}
+      <aside className="w-14 flex flex-col gap-2 py-3 px-1.5 flex-shrink-0 overflow-y-auto"
+        style={{ borderRight: '1px solid rgba(0,255,65,0.07)', background: 'rgba(3,7,4,0.6)' }}>
+        <button
+          onClick={createConversation}
+          className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto btn-press flex-shrink-0"
+          style={{ background: 'rgba(0,255,65,0.1)', border: '1px solid rgba(0,255,65,0.25)', color: '#00ff41' }}
+          title="Yeni Sohbet"
+          data-testid="btn-new-chat"
+        >
           <Plus className="w-4 h-4" />
         </button>
         {conversations?.map((conv: any) => (
-          <div key={conv.id} className="relative group">
+          <div key={conv.id} className="relative group/conv">
             <button
               onClick={() => setLocation(`/chat/${conv.id}`)}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors active:scale-95 mx-auto ${convId === conv.id ? "bg-primary/30 border border-primary/50 text-primary" : "bg-white/5 hover:bg-white/10 text-muted-foreground"}`}
-              data-testid={`btn-conv-${conv.id}`}
+              className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto btn-press"
+              style={{
+                background: convId === conv.id ? 'rgba(0,255,65,0.12)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${convId === conv.id ? 'rgba(0,255,65,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                color: convId === conv.id ? '#00ff41' : 'rgba(160,190,168,0.4)',
+              }}
               title={conv.title}
+              data-testid={`btn-conv-${conv.id}`}
             >
               <MessageSquare className="w-4 h-4" />
             </button>
-            <button onClick={(e) => deleteConversation(conv.id, e)} className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full items-center justify-center hidden group-hover:flex" data-testid={`btn-del-conv-${conv.id}`}>
+            <button
+              onClick={(e) => deleteConversation(conv.id, e)}
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full items-center justify-center hidden group-hover/conv:flex btn-press"
+              style={{ background: 'rgba(200,40,40,0.9)' }}
+              data-testid={`btn-del-conv-${conv.id}`}
+            >
               <Trash2 className="w-2.5 h-2.5 text-white" />
             </button>
           </div>
         ))}
       </aside>
 
+      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {!convId ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 p-4">
-            <MessageSquare className="w-12 h-12 text-muted-foreground/30" />
-            <p className="text-muted-foreground font-mono text-sm text-center">Yeni bir sohbet baslatmak icin + tusuna basin</p>
-            <Button onClick={createConversation} className="bg-primary/20 text-primary hover:bg-primary hover:text-black font-mono active:scale-95" data-testid="btn-start-chat">
-              <Plus className="w-4 h-4 mr-2" /> Yeni Sohbet
-            </Button>
+          <div className="flex-1 flex flex-col items-center justify-center gap-5 p-6">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{ background: 'rgba(0,160,220,0.08)', border: '1px solid rgba(0,160,220,0.2)' }}>
+              <Bot className="w-7 h-7" style={{ color: 'rgba(0,160,220,0.7)' }} />
+            </div>
+            <div className="text-center">
+              <p className="font-mono font-bold text-sm mb-1" style={{ color: 'rgba(200,230,240,0.8)' }}>CodeBuddy ile Sohbet</p>
+              <p className="text-xs font-mono" style={{ color: 'rgba(120,160,180,0.45)' }}>Kod hataları, kavramlar, proje fikirleri — her şeyi sor.</p>
+            </div>
+            <button
+              onClick={createConversation}
+              className="px-5 py-3 rounded-xl font-mono font-bold text-sm btn-press flex items-center gap-2"
+              style={{ background: 'rgba(0,160,220,0.12)', border: '1px solid rgba(0,160,220,0.25)', color: 'rgba(0,190,255,0.9)' }}
+              data-testid="btn-start-chat"
+            >
+              <Plus className="w-4 h-4" /> Yeni Sohbet Başlat
+            </button>
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-3">
               {allMessages.map((msg: any) => (
                 <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`} data-testid={`msg-${msg.role}-${msg.id}`}>
-                  <div className={`max-w-[80%] rounded-xl px-4 py-3 text-sm font-sans leading-relaxed ${msg.role === "user" ? "bg-primary/20 text-primary border border-primary/30" : "glass-card text-foreground border-white/10"}`}>
-                    <pre className="whitespace-pre-wrap font-sans">{msg.content}</pre>
+                  <div
+                    className="max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
+                    style={msg.role === "user"
+                      ? { background: 'rgba(0,255,65,0.1)', border: '1px solid rgba(0,255,65,0.2)', color: 'rgba(180,240,200,0.9)' }
+                      : { background: 'rgba(8,14,10,0.85)', border: '1px solid rgba(0,255,65,0.07)', color: 'rgba(200,225,210,0.85)', backdropFilter: 'blur(12px)' }
+                    }
+                  >
+                    <pre className="whitespace-pre-wrap font-sans text-sm">{msg.content}</pre>
                   </div>
                 </div>
               ))}
+
               {isStreaming && streamingMsg && (
                 <div className="flex justify-start">
-                  <div className="max-w-[80%] glass-card rounded-xl px-4 py-3 text-sm border-white/10">
-                    <pre className="whitespace-pre-wrap font-sans">{streamingMsg}<span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1 align-middle" /></pre>
+                  <div className="max-w-[82%] rounded-2xl px-4 py-3 text-sm"
+                    style={{ background: 'rgba(8,14,10,0.85)', border: '1px solid rgba(0,255,65,0.07)', color: 'rgba(200,225,210,0.85)', backdropFilter: 'blur(12px)' }}>
+                    <pre className="whitespace-pre-wrap font-sans">{streamingMsg}<span className="cursor-blink" /></pre>
                   </div>
                 </div>
               )}
+
               {isStreaming && !streamingMsg && (
                 <div className="flex justify-start">
-                  <div className="glass-card rounded-xl px-4 py-3 border-white/10 flex gap-1.5 items-center">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="rounded-2xl px-4 py-3 flex gap-1.5 items-center"
+                    style={{ background: 'rgba(8,14,10,0.85)', border: '1px solid rgba(0,255,65,0.07)' }}>
+                    {[0, 150, 300].map(delay => (
+                      <span key={delay} className="w-1.5 h-1.5 rounded-full animate-bounce"
+                        style={{ background: 'rgba(0,255,65,0.6)', animationDelay: `${delay}ms` }} />
+                    ))}
                   </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 border-t border-white/10 flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-                placeholder="Bir sey sor..."
-                className="bg-black/50 border-white/10 focus-visible:ring-primary text-primary font-mono text-sm"
-                disabled={isStreaming}
-                data-testid="input-chat"
-              />
-              <Button onClick={sendMessage} disabled={isStreaming || !input.trim()} className="bg-primary/20 text-primary hover:bg-primary hover:text-black active:scale-95 flex-shrink-0" data-testid="btn-send-message">
-                <Send className="w-4 h-4" />
-              </Button>
+            {/* Input */}
+            <div className="px-3 pb-3 pt-2" style={{ borderTop: '1px solid rgba(0,255,65,0.07)' }}>
+              <div className="flex gap-2 items-center rounded-2xl px-4 py-2"
+                style={{ background: 'rgba(4,10,6,0.9)', border: '1px solid rgba(0,255,65,0.12)' }}>
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                  placeholder="Bir şey sor..."
+                  className="flex-1 bg-transparent outline-none text-sm font-mono py-1.5 placeholder:opacity-25"
+                  style={{ color: 'rgba(210,235,218,0.9)' }}
+                  disabled={isStreaming}
+                  data-testid="input-chat"
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={isStreaming || !input.trim()}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center btn-press flex-shrink-0 disabled:opacity-30 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, #00e838, #00cc2e)', color: '#020902' }}
+                  data-testid="btn-send-message"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </>
         )}

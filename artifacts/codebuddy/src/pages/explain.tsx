@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
-import { Copy, Check, Star, ChevronRight, Map, Zap, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Copy, Check, Star, Map, Zap, BookOpen, ChevronLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAddFavorite, useListFavorites, useGetRoadmap, getListFavoritesQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,41 +14,53 @@ function CodeBlock({ code }: { code: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <div className="relative group">
-      <pre className="bg-black/80 border border-primary/20 rounded-xl p-4 text-primary font-mono text-sm overflow-x-auto leading-relaxed">
+    <div className="relative group my-3">
+      <pre
+        className="rounded-xl p-4 text-sm font-mono overflow-x-auto leading-relaxed"
+        style={{
+          background: 'rgba(0,0,0,0.7)',
+          border: '1px solid rgba(0,255,65,0.15)',
+          color: '#a8ffb8',
+        }}
+      >
         <code>{code}</code>
       </pre>
-      <button onClick={copy} className="absolute top-2 right-2 p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white transition-colors opacity-0 group-hover:opacity-100" data-testid="btn-copy-code">
-        {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+      <button
+        onClick={copy}
+        className="absolute top-2 right-2 p-1.5 rounded-lg btn-press opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ background: 'rgba(0,255,65,0.1)', border: '1px solid rgba(0,255,65,0.2)', color: 'rgba(0,255,65,0.7)' }}
+        data-testid="btn-copy-code"
+      >
+        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
       </button>
     </div>
   );
 }
 
-function parseExplanation(text: string) {
+function renderText(text: string) {
+  const parts: React.ReactNode[] = [];
   const codeBlockRegex = /```[\w]*\n?([\s\S]*?)```/g;
-  const outputRegex = /\*\*Program .*?:\*\*\s*```([\s\S]*?)```/g;
-  const parts: Array<{ type: "text" | "code" | "output"; content: string }> = [];
   let last = 0;
   let match: RegExpExecArray | null;
+  let key = 0;
 
-  const cleanedText = text.replace(outputRegex, (_, content) => {
-    parts.push({ type: "output", content: content.trim() });
-    return "";
-  });
-
-  const withoutOutput = cleanedText;
-  const codeRegex = /```[\w]*\n?([\s\S]*?)```/g;
-  let lastIndex = 0;
-  while ((match = codeRegex.exec(withoutOutput)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push({ type: "text", content: withoutOutput.slice(lastIndex, match.index) });
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    if (match.index > last) {
+      parts.push(
+        <p key={key++} className="whitespace-pre-wrap leading-relaxed text-sm" style={{ color: 'rgba(210,230,215,0.85)' }}>
+          {text.slice(last, match.index)}
+        </p>
+      );
     }
-    parts.push({ type: "code", content: match[1].trim() });
-    lastIndex = match.index + match[0].length;
+    parts.push(<CodeBlock key={key++} code={match[1].trim()} />);
+    last = match.index + match[0].length;
   }
-  if (lastIndex < withoutOutput.length) {
-    parts.push({ type: "text", content: withoutOutput.slice(lastIndex) });
+  if (last < text.length) {
+    parts.push(
+      <p key={key++} className="whitespace-pre-wrap leading-relaxed text-sm" style={{ color: 'rgba(210,230,215,0.85)' }}>
+        {text.slice(last)}
+      </p>
+    );
   }
   return parts;
 }
@@ -61,10 +72,11 @@ export default function Explain() {
   const { token } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const BASE = import.meta.env.BASE_URL;
 
   const [explanation, setExplanation] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [deepExplanation, setDeepExplanation] = useState("");
+  const [deepText, setDeepText] = useState("");
   const [isDeepening, setIsDeepening] = useState(false);
   const [showDeep, setShowDeep] = useState(false);
   const [roadmap, setRoadmap] = useState<any>(null);
@@ -74,12 +86,13 @@ export default function Explain() {
 
   const addFavMutation = useAddFavorite();
   const roadmapMutation = useGetRoadmap();
-  const { data: favorites } = useListFavorites({ query: { queryKey: getListFavoritesQueryKey(), enabled: !!token }, request: { headers: { Authorization: `Bearer ${token}` } } });
+  const { data: favorites } = useListFavorites({
+    query: { queryKey: getListFavoritesQueryKey(), enabled: !!token },
+    request: { headers: { Authorization: `Bearer ${token}` } },
+  });
 
   useEffect(() => {
-    if (favorites) {
-      setIsFavorited(favorites.some((f: any) => f.term === term));
-    }
+    if (favorites) setIsFavorited(favorites.some((f: any) => f.term === term));
   }, [favorites, term]);
 
   useEffect(() => {
@@ -88,8 +101,6 @@ export default function Explain() {
     return () => abortRef.current?.abort();
   }, [term]);
 
-  const BASE = import.meta.env.BASE_URL;
-
   async function streamExplanation() {
     setExplanation("");
     setIsStreaming(true);
@@ -97,7 +108,7 @@ export default function Explain() {
     try {
       const res = await fetch(`${BASE}api/explain`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) } as HeadersInit,
         body: JSON.stringify({ term }),
         signal: abortRef.current.signal,
       });
@@ -118,7 +129,7 @@ export default function Explain() {
         }
       }
     } catch (e: any) {
-      if (e.name !== "AbortError") toast({ variant: "destructive", title: "Hata", description: "Aciklama yuklenemedi." });
+      if (e.name !== "AbortError") toast({ variant: "destructive", title: "Hata", description: "Açıklama yüklenemedi." });
     } finally {
       setIsStreaming(false);
     }
@@ -126,12 +137,12 @@ export default function Explain() {
 
   async function handleDeepen() {
     setShowDeep(true);
-    setDeepExplanation("");
+    setDeepText("");
     setIsDeepening(true);
     try {
       const res = await fetch(`${BASE}api/explain/deepen`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) } as HeadersInit,
         body: JSON.stringify({ term, previousExplanation: explanation }),
       });
       const reader = res.body!.getReader();
@@ -147,7 +158,7 @@ export default function Explain() {
           if (!line.startsWith("data: ")) continue;
           const parsed = JSON.parse(line.slice(6));
           if (parsed.done) break;
-          if (parsed.content) setDeepExplanation(prev => prev + parsed.content);
+          if (parsed.content) setDeepText(prev => prev + parsed.content);
         }
       }
     } finally {
@@ -159,7 +170,7 @@ export default function Explain() {
     setShowRoadmap(true);
     roadmapMutation.mutate({ data: { term } }, {
       onSuccess: (data) => setRoadmap(data),
-      onError: () => toast({ variant: "destructive", title: "Hata", description: "Yol haritasi yuklenemedi." }),
+      onError: () => toast({ variant: "destructive", title: "Hata", description: "Yol haritası yüklenemedi." }),
     });
   }
 
@@ -174,85 +185,128 @@ export default function Explain() {
     });
   }
 
-  const parts = parseExplanation(explanation);
+  const actionBtn = (onClick: () => void, icon: React.ReactNode, label: string, accent: string, testId: string) => (
+    <button
+      onClick={onClick}
+      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-mono font-semibold text-xs btn-press transition-colors"
+      style={{ background: `rgba(${accent},0.08)`, border: `1px solid rgba(${accent},0.2)`, color: `rgb(${accent})` }}
+      data-testid={testId}
+    >
+      {icon}
+      {label}
+    </button>
+  );
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-300 pb-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-muted-foreground font-mono mb-1">DECODING</p>
-          <h1 className="text-2xl font-bold text-gradient font-mono">{term}</h1>
+    <div className="flex flex-col gap-5">
+
+      {/* Back + title */}
+      <div className="flex items-start gap-3">
+        <button onClick={() => setLocation("/")} className="mt-0.5 p-1.5 rounded-lg btn-press flex-shrink-0"
+          style={{ color: 'rgba(160,190,168,0.5)', background: 'rgba(0,255,65,0.05)', border: '1px solid rgba(0,255,65,0.1)' }}>
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-mono mb-0.5" style={{ color: 'rgba(0,255,65,0.45)' }}>KAVRAM AÇIKLAMASI</p>
+          <h1 className="text-xl font-bold font-mono text-gradient-green truncate">{term}</h1>
         </div>
-        <button onClick={handleFavorite} className={`p-2 rounded-lg transition-all active:scale-95 ${isFavorited ? "text-yellow-400" : "text-muted-foreground hover:text-yellow-400"}`} data-testid="btn-favorite">
-          <Star className={`w-6 h-6 ${isFavorited ? "fill-yellow-400" : ""}`} />
+        <button
+          onClick={handleFavorite}
+          className="mt-0.5 p-2 rounded-lg btn-press flex-shrink-0"
+          style={{
+            background: isFavorited ? 'rgba(250,200,0,0.1)' : 'rgba(0,255,65,0.05)',
+            border: `1px solid ${isFavorited ? 'rgba(250,200,0,0.3)' : 'rgba(0,255,65,0.1)'}`,
+            color: isFavorited ? '#facc15' : 'rgba(160,190,168,0.4)',
+          }}
+          data-testid="btn-favorite"
+        >
+          <Star className={`w-4 h-4 ${isFavorited ? "fill-yellow-400" : ""}`} />
         </button>
       </div>
 
-      <div className="glass-card rounded-xl p-4 min-h-[120px] relative">
+      {/* Main explanation card */}
+      <div className="rounded-2xl p-5 min-h-[160px]"
+        style={{
+          background: 'rgba(6,12,8,0.85)',
+          border: '1px solid rgba(0,255,65,0.1)',
+          backdropFilter: 'blur(20px)',
+        }}>
         {isStreaming && explanation.length === 0 && (
-          <div className="flex items-center gap-2 text-primary font-mono text-sm">
-            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            Aciklama yukleniyor...
+          <div className="flex items-center gap-2.5" style={{ color: 'rgba(0,255,65,0.6)' }}>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="font-mono text-sm">Yapay zeka açıklıyor...</span>
           </div>
         )}
-        <div className="space-y-3 text-sm leading-relaxed text-foreground">
-          {parts.map((part, i) =>
-            part.type === "code" ? (
-              <CodeBlock key={i} code={part.content} />
-            ) : part.type === "output" ? (
-              <div key={i} className="bg-black/60 border border-white/10 rounded-lg p-3 font-mono text-xs text-green-400">
-                <p className="text-muted-foreground mb-1">Program Ciktisi:</p>
-                <pre>{part.content}</pre>
-              </div>
-            ) : (
-              <p key={i} className="whitespace-pre-wrap">{part.content}</p>
-            )
-          )}
-          {isStreaming && <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1" />}
-        </div>
+        <div>{renderText(explanation)}</div>
+        {isStreaming && explanation.length > 0 && (
+          <span className="cursor-blink" />
+        )}
       </div>
 
+      {/* Actions */}
       {!isStreaming && explanation && (
-        <div className="flex flex-col gap-3">
-          <Button onClick={handleDeepen} variant="outline" className="w-full border-secondary/50 text-secondary hover:bg-secondary/10 font-mono glow-border-blue active:scale-95 transition-transform" data-testid="btn-deepen">
-            <Zap className="w-4 h-4 mr-2" /> Daha Derinlemesine Anlat
-          </Button>
-          <Button onClick={handleRoadmap} variant="outline" className="w-full border-primary/30 text-primary hover:bg-primary/10 font-mono active:scale-95 transition-transform" data-testid="btn-roadmap">
-            <Map className="w-4 h-4 mr-2" /> Siradaki Adim Ne?
-          </Button>
-          <Button onClick={() => setLocation(`/quiz/${encodeURIComponent(term)}`)} className="w-full bg-primary/20 text-primary hover:bg-primary hover:text-black font-mono active:scale-95 transition-transform" data-testid="btn-quiz">
-            <BookOpen className="w-4 h-4 mr-2" /> Kendini Test Et
-          </Button>
+        <div className="flex gap-2">
+          {actionBtn(handleDeepen, <Zap className="w-3.5 h-3.5" />, "Derinleştir", "0,180,220", "btn-deepen")}
+          {actionBtn(handleRoadmap, <Map className="w-3.5 h-3.5" />, "Yol Haritası", "0,255,65", "btn-roadmap")}
+          {actionBtn(
+            () => setLocation(`/quiz/${encodeURIComponent(term)}`),
+            <BookOpen className="w-3.5 h-3.5" />,
+            "Quiz",
+            "200,160,255",
+            "btn-quiz"
+          )}
         </div>
       )}
 
+      {/* Deep explanation */}
       {showDeep && (
-        <div className="glass-card rounded-xl p-4 border-l-2 border-l-secondary">
-          <p className="text-xs font-mono text-secondary mb-3">DERINLEMESINE ACIKLAMA</p>
-          {isDeepening && deepExplanation.length === 0 && (
-            <div className="flex items-center gap-2 text-secondary font-mono text-sm">
-              <span className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
-              Yukleniyor...
+        <div className="rounded-2xl p-5"
+          style={{ background: 'rgba(0,120,160,0.07)', border: '1px solid rgba(0,180,220,0.18)', backdropFilter: 'blur(16px)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-4 rounded-full" style={{ background: '#00b4dc' }} />
+            <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(0,180,220,0.7)' }}>DERİNLEMESİNE AÇIKLAMA</p>
+          </div>
+          {isDeepening && deepText.length === 0 && (
+            <div className="flex items-center gap-2" style={{ color: 'rgba(0,180,220,0.6)' }}>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="font-mono text-sm">Yükleniyor...</span>
             </div>
           )}
-          <div className="text-sm leading-relaxed whitespace-pre-wrap">{deepExplanation}</div>
-          {isDeepening && <span className="inline-block w-2 h-4 bg-secondary animate-pulse ml-1" />}
+          <div className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: 'rgba(200,230,240,0.85)' }}>
+            {deepText}
+          </div>
+          {isDeepening && deepText.length > 0 && <span className="cursor-blink" />}
         </div>
       )}
 
+      {/* Roadmap */}
       {showRoadmap && (
-        <div className="glass-card rounded-xl p-4 border-l-2 border-l-primary">
-          <p className="text-xs font-mono text-primary mb-4">YOL HARITASI</p>
-          {roadmapMutation.isPending && <div className="text-sm text-muted-foreground font-mono">Olusturuluyor...</div>}
-          {roadmap?.steps?.map((step: any) => (
-            <div key={step.order} className="flex gap-3 mb-4 last:mb-0">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center text-xs font-mono text-primary">{step.order}</div>
-              <div>
-                <p className="font-semibold text-white text-sm">{step.title}</p>
-                <p className="text-xs text-muted-foreground mt-1">{step.description}</p>
-              </div>
+        <div className="rounded-2xl p-5"
+          style={{ background: 'rgba(0,255,65,0.04)', border: '1px solid rgba(0,255,65,0.12)', backdropFilter: 'blur(16px)' }}>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-4 rounded-full" style={{ background: '#00ff41' }} />
+            <p className="text-xs font-mono tracking-widest" style={{ color: 'rgba(0,255,65,0.6)' }}>ÖĞRENİM YOL HARİTASI</p>
+          </div>
+          {roadmapMutation.isPending && (
+            <div className="flex items-center gap-2" style={{ color: 'rgba(0,255,65,0.5)' }}>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="font-mono text-sm">Oluşturuluyor...</span>
             </div>
-          ))}
+          )}
+          <div className="flex flex-col gap-4">
+            {roadmap?.steps?.map((step: any) => (
+              <div key={step.order} className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold"
+                  style={{ background: 'rgba(0,255,65,0.12)', border: '1px solid rgba(0,255,65,0.3)', color: '#00ff41' }}>
+                  {step.order}
+                </div>
+                <div>
+                  <p className="font-mono font-semibold text-sm mb-0.5" style={{ color: 'rgba(220,240,225,0.9)' }}>{step.title}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: 'rgba(160,190,168,0.6)' }}>{step.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

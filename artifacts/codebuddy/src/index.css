@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -50,69 +50,60 @@
 }
 
 :root {
-  /* Matrix Theme */
-  --background: 135 9% 2%; /* #050605 */
-  --foreground: 0 0% 90%;
-  
-  --card: 135 9% 10% / 0.1;
-  --card-foreground: 0 0% 95%;
-  --card-border: 135 100% 50% / 0.2;
-  
-  --popover: 135 9% 5%;
-  --popover-foreground: 0 0% 95%;
-  --popover-border: 135 100% 50% / 0.2;
-  
-  --primary: 135 100% 50%; /* #00ff41 */
-  --primary-foreground: 135 9% 2%;
-  
-  --secondary: 198 100% 50%; /* #00b4ff */
-  --secondary-foreground: 135 9% 2%;
-  
-  --muted: 135 9% 15%;
-  --muted-foreground: 135 9% 60%;
-  
-  --accent: 135 100% 50% / 0.1;
-  --accent-foreground: 135 100% 50%;
-  
-  --destructive: 0 84% 60%;
+  --background: 135 10% 3%;
+  --foreground: 0 0% 88%;
+
+  --card: 135 8% 8%;
+  --card-foreground: 0 0% 92%;
+  --card-border: 135 100% 50% / 0.12;
+
+  --popover: 135 8% 6%;
+  --popover-foreground: 0 0% 92%;
+  --popover-border: 135 100% 50% / 0.15;
+
+  --primary: 135 100% 50%;
+  --primary-foreground: 135 100% 3%;
+
+  --secondary: 195 80% 45%;
+  --secondary-foreground: 135 100% 3%;
+
+  --muted: 135 8% 13%;
+  --muted-foreground: 135 5% 48%;
+
+  --accent: 135 100% 50% / 0.08;
+  --accent-foreground: 135 80% 65%;
+
+  --destructive: 0 72% 55%;
   --destructive-foreground: 0 0% 98%;
 
-  --border: 135 9% 15%;
-  --input: 135 9% 15%;
+  --border: 135 8% 12%;
+  --input: 135 8% 10%;
   --ring: 135 100% 50%;
-  
-  --radius: 0.5rem;
+
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: 135 9% 2%; /* #050605 */
-  --foreground: 0 0% 90%;
-  
-  --card: 135 9% 10% / 0.1;
-  --card-foreground: 0 0% 95%;
-  --card-border: 135 100% 50% / 0.2;
-  
-  --popover: 135 9% 5%;
-  --popover-foreground: 0 0% 95%;
-  --popover-border: 135 100% 50% / 0.2;
-  
-  --primary: 135 100% 50%; /* #00ff41 */
-  --primary-foreground: 135 9% 2%;
-  
-  --secondary: 198 100% 50%; /* #00b4ff */
-  --secondary-foreground: 135 9% 2%;
-  
-  --muted: 135 9% 15%;
-  --muted-foreground: 135 9% 60%;
-  
-  --accent: 135 100% 50% / 0.1;
-  --accent-foreground: 135 100% 50%;
-  
-  --destructive: 0 84% 60%;
+  --background: 135 10% 3%;
+  --foreground: 0 0% 88%;
+  --card: 135 8% 8%;
+  --card-foreground: 0 0% 92%;
+  --card-border: 135 100% 50% / 0.12;
+  --popover: 135 8% 6%;
+  --popover-foreground: 0 0% 92%;
+  --popover-border: 135 100% 50% / 0.15;
+  --primary: 135 100% 50%;
+  --primary-foreground: 135 100% 3%;
+  --secondary: 195 80% 45%;
+  --secondary-foreground: 135 100% 3%;
+  --muted: 135 8% 13%;
+  --muted-foreground: 135 5% 48%;
+  --accent: 135 100% 50% / 0.08;
+  --accent-foreground: 135 80% 65%;
+  --destructive: 0 72% 55%;
   --destructive-foreground: 0 0% 98%;
-
-  --border: 135 9% 15%;
-  --input: 135 9% 15%;
+  --border: 135 8% 12%;
+  --input: 135 8% 10%;
   --ring: 135 100% 50%;
 }
 
@@ -121,21 +112,121 @@
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
+    @apply font-sans antialiased bg-background text-foreground;
+    background-color: #060907;
+    selection-color: #00ff41;
   }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,255,65,0.2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,65,0.4); }
 }
 
+/* ── Premium Glass Card ── */
+.glass-card {
+  background: rgba(8, 14, 9, 0.72);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(0, 255, 65, 0.10);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.4),
+    0 4px 24px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.glass-card-strong {
+  background: rgba(6, 12, 7, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(0, 255, 65, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.5),
+    0 8px 40px rgba(0,0,0,0.6),
+    0 0 60px rgba(0,255,65,0.03),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ── Glow Borders ── */
+.glow-border {
+  border-color: rgba(0, 255, 65, 0.35);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 0 16px rgba(0,255,65,0.12), inset 0 0 20px rgba(0,255,65,0.03);
+}
+
+.glow-border-blue {
+  border-color: rgba(0, 180, 220, 0.35);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 0 16px rgba(0,180,220,0.12);
+}
+
+/* ── Text gradient ── */
 .text-gradient {
-  background: linear-gradient(135deg, #c0c0c0, #ffffff);
+  background: linear-gradient(135deg, #c8ffd6 0%, #e8ffe8 50%, #a0d8b0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.glass-card {
-  @apply bg-white/5 backdrop-blur-md border border-primary/20 shadow-[0_0_15px_rgba(0,255,65,0.05)];
+.text-gradient-green {
+  background: linear-gradient(135deg, #00ff41 0%, #33ff88 60%, #00cc33 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.glow-border {
-  @apply border-primary/50 shadow-[0_0_10px_rgba(0,255,65,0.2)];
+/* ── Neon text ── */
+.neon-text {
+  color: #00ff41;
+  text-shadow: 0 0 8px rgba(0,255,65,0.6), 0 0 20px rgba(0,255,65,0.3);
+}
+
+/* ── Button press ── */
+.btn-press {
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+/* ── Scan line overlay ── */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Tag pill ── */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: rgba(0,255,65,0.07);
+  border: 1px solid rgba(0,255,65,0.18);
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(0,255,65,0.8);
+  letter-spacing: 0.03em;
+}
+
+/* ── Typewriter cursor ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #00ff41;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
 }

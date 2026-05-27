@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Search, Terminal, BookOpen, BrainCircuit } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Search, Terminal, Code2, BrainCircuit, Layers } from "lucide-react";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -16,59 +14,143 @@ export default function Home() {
   };
 
   const categories = [
-    { name: "React", terms: ["useEffect", "useState", "Context API"] },
-    { name: "JavaScript", terms: ["Promises", "Closures", "Event Loop"] },
-    { name: "Python", terms: ["List Comprehension", "Decorators", "Generators"] },
+    {
+      name: "React",
+      icon: "⚛",
+      color: "rgba(0,180,220,0.15)",
+      border: "rgba(0,180,220,0.25)",
+      terms: ["useEffect", "useState", "Context API", "useCallback", "useMemo"],
+    },
+    {
+      name: "JavaScript",
+      icon: "JS",
+      color: "rgba(240,200,0,0.08)",
+      border: "rgba(240,200,0,0.2)",
+      terms: ["Promise", "Closure", "Event Loop", "async/await", "Prototype"],
+    },
+    {
+      name: "Python",
+      icon: "Py",
+      color: "rgba(0,255,65,0.07)",
+      border: "rgba(0,255,65,0.18)",
+      terms: ["List Comprehension", "Decorator", "Generator", "Lambda", "Class"],
+    },
+    {
+      name: "Veri Yapıları",
+      icon: "{}",
+      color: "rgba(180,80,255,0.08)",
+      border: "rgba(180,80,255,0.2)",
+      terms: ["Stack", "Queue", "Hash Map", "Binary Tree", "Linked List"],
+    },
   ];
 
   return (
-    <div className="flex flex-col gap-8 animate-in fade-in duration-500 pt-8">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-gradient font-mono tracking-tight">Access the Mainframe</h1>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-          What concept do you want to decode today?
+    <div className="flex flex-col gap-7">
+
+      {/* Hero */}
+      <div className="pt-2 pb-1 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="tag-pill">Yapay Zeka Destekli</span>
+        </div>
+        <h1 className="text-3xl font-bold font-mono leading-tight" style={{ lineHeight: '1.2' }}>
+          <span className="text-gradient-green">Kodlamayı</span>{" "}
+          <span style={{ color: 'rgba(220,240,225,0.9)' }}>Anlamak</span>
+          <br />
+          <span style={{ color: 'rgba(220,240,225,0.9)' }}>Hiç Bu Kadar</span>{" "}
+          <span className="text-gradient-green">Kolay</span>
+          <br />
+          <span style={{ color: 'rgba(220,240,225,0.9)' }}>Olmamıştı.</span>
+        </h1>
+        <p className="text-sm font-mono" style={{ color: 'rgba(160,190,168,0.65)' }}>
+          Bir kavram yaz, sana Türkçe açıklayayım.
         </p>
       </div>
 
-      <form onSubmit={handleSearch} className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-secondary/50 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-        <div className="relative flex items-center">
-          <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
-          <Input
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            placeholder="Type a coding term..."
-            className="w-full h-14 pl-12 pr-4 bg-black/50 border-primary/20 text-lg rounded-xl glass-card text-primary placeholder:text-muted-foreground/50 focus-visible:ring-primary focus-visible:border-primary transition-all font-mono"
-            data-testid="input-search"
-          />
-          <Button 
-            type="submit" 
-            size="sm" 
-            className="absolute right-2 h-10 bg-primary/20 text-primary hover:bg-primary hover:text-black transition-colors"
-            data-testid="btn-search"
-          >
-            Decode
-          </Button>
+      {/* Search */}
+      <form onSubmit={handleSearch}>
+        <div className="relative">
+          <div className="flex items-center rounded-2xl overflow-hidden"
+            style={{
+              background: 'rgba(8,16,10,0.8)',
+              border: '1px solid rgba(0,255,65,0.18)',
+              boxShadow: '0 0 30px rgba(0,255,65,0.04), inset 0 1px 0 rgba(255,255,255,0.03)',
+            }}>
+            <Search className="w-4 h-4 ml-4 flex-shrink-0" style={{ color: 'rgba(0,255,65,0.45)' }} />
+            <input
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder="useEffect, closure, pointer..."
+              className="flex-1 bg-transparent outline-none py-4 px-3 text-sm font-mono placeholder:opacity-30"
+              style={{ color: 'rgba(220,240,225,0.9)' }}
+              data-testid="input-search"
+            />
+            <button
+              type="submit"
+              className="m-1.5 px-5 py-2.5 rounded-xl font-mono font-bold text-sm tracking-widest btn-press flex-shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, #00e838, #00cc2e)',
+                color: '#020902',
+                boxShadow: '0 0 16px rgba(0,255,65,0.25)',
+                letterSpacing: '0.1em',
+              }}
+              data-testid="btn-search"
+            >
+              SORGULA
+            </button>
+          </div>
         </div>
       </form>
 
-      <div className="space-y-6 mt-4">
-        <h2 className="text-sm font-mono text-muted-foreground flex items-center gap-2">
-          <Terminal className="w-4 h-4" /> Recommended Modules
-        </h2>
-        
-        <div className="grid gap-4">
-          {categories.map((cat, i) => (
-            <div key={i} className="glass-card p-4 rounded-xl border-t border-white/5">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-secondary" /> {cat.name}
-              </h3>
+      {/* Categories */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="h-px flex-1" style={{ background: 'rgba(0,255,65,0.1)' }} />
+          <span className="font-mono text-xs tracking-widest" style={{ color: 'rgba(0,255,65,0.5)' }}>
+            SİSTEMDEKİ KAVRAMLAR
+          </span>
+          <div className="h-px flex-1" style={{ background: 'rgba(0,255,65,0.1)' }} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {categories.map((cat) => (
+            <div
+              key={cat.name}
+              className="rounded-2xl p-4 scanlines"
+              style={{
+                background: cat.color,
+                border: `1px solid ${cat.border}`,
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold"
+                  style={{ background: cat.border, color: 'rgba(220,240,225,0.9)' }}>
+                  {cat.icon}
+                </span>
+                <h3 className="font-mono font-semibold text-sm" style={{ color: 'rgba(220,240,225,0.85)' }}>
+                  {cat.name}
+                </h3>
+                <Layers className="w-3 h-3 ml-auto" style={{ color: 'rgba(160,190,168,0.4)' }} />
+              </div>
               <div className="flex flex-wrap gap-2">
                 {cat.terms.map((t) => (
                   <button
                     key={t}
                     onClick={() => setLocation(`/explain/${encodeURIComponent(t)}`)}
-                    className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-xs font-mono hover:bg-primary/20 hover:border-primary/50 hover:text-primary transition-all active:scale-95"
+                    className="px-3 py-1.5 rounded-lg text-xs font-mono btn-press transition-colors"
+                    style={{
+                      background: 'rgba(0,0,0,0.35)',
+                      border: '1px solid rgba(255,255,255,0.07)',
+                      color: 'rgba(200,230,210,0.75)',
+                    }}
+                    onMouseEnter={e => {
+                      (e.target as HTMLElement).style.borderColor = 'rgba(0,255,65,0.35)';
+                      (e.target as HTMLElement).style.color = '#00ff41';
+                    }}
+                    onMouseLeave={e => {
+                      (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)';
+                      (e.target as HTMLElement).style.color = 'rgba(200,230,210,0.75)';
+                    }}
                     data-testid={`btn-term-${t}`}
                   >
                     {t}
@@ -78,20 +160,35 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
-      
-      <div className="glass-card p-6 rounded-xl mt-4 border-l-2 border-l-secondary relative overflow-hidden group cursor-pointer" onClick={() => setLocation('/chat')}>
-        <div className="absolute inset-0 bg-secondary/5 group-hover:bg-secondary/10 transition-colors"></div>
-        <div className="relative flex items-start gap-4">
-          <div className="p-3 rounded-lg bg-secondary/20">
-            <BrainCircuit className="w-6 h-6 text-secondary" />
+      </section>
+
+      {/* Chat CTA */}
+      <button
+        onClick={() => setLocation('/chat')}
+        className="rounded-2xl p-5 text-left btn-press w-full"
+        style={{
+          background: 'rgba(0,140,200,0.08)',
+          border: '1px solid rgba(0,160,220,0.2)',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(0,160,220,0.15)', border: '1px solid rgba(0,160,220,0.25)' }}>
+            <BrainCircuit className="w-5 h-5" style={{ color: '#00aadd' }} />
           </div>
-          <div>
-            <h3 className="font-bold text-white mb-1">Enter the Chat</h3>
-            <p className="text-xs text-muted-foreground">Talk directly to your AI buddy to debug code or brainstorm ideas.</p>
+          <div className="flex-1">
+            <p className="font-mono font-semibold text-sm mb-0.5" style={{ color: 'rgba(220,240,245,0.9)' }}>
+              AI ile Sohbet Et
+            </p>
+            <p className="text-xs font-mono" style={{ color: 'rgba(140,180,200,0.55)' }}>
+              Kod hataları, proje fikirleri, her şeyi sor.
+            </p>
           </div>
+          <Code2 className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(0,160,220,0.4)' }} />
         </div>
-      </div>
+      </button>
+
     </div>
   );
 }
