@@ -1,0 +1,44 @@
+REPLIT AGENT'A VERECEĞİN O DEV MASTER PROMPT
+Proje İsmi: CodeBuddy AI Assistant
+Teknoloji Yığını: Node.js (Express), PostgreSQL (veya Replit Database), HTML5, CSS3 (Vanilla), JavaScript (Frontend)
+
+"Sıfırdan, yazılım öğrenen öğrenciler için 'CodeBuddy' adında, siber-premium estetiğe sahip, yapay zeka destekli interaktif bir mobil web asistanı yapmanı istiyorum. Uygulama hem tam teşekküllü bir PWA (Progressive Web App) olacak hem de Vercel ve PostgreSQL ile tam uyumlu çalışacak şekilde yapılandırılmalıdır.
+
+1. GİRİŞ VE GÜVENLİK SİSTEMİ (Kimlik Doğrulama)
+Giriş ve Kayıt Ekranları: Kullanıcılar hesap oluşturabilmeli ve giriş yapabilmeli. Şifre alanlarının yanında bir 'göz ikonu' bulunmalı ve şifreyi görünür/gizli yapma özelliği aktif olmalı.
+
+Veritabanı Entegrasyonu: Kullanıcı bilgileri, favoriye eklenen terimler ve quiz skorları veritabanında (PostgreSQL) güvenli bir şekilde tutulmalı.
+
+2. YAPAY ZEKA VE SORGULAMA SİSTEMİ
+Akıllı Arama / AI: Kullanıcı bir kod terimi (örneğin: 'C# döngüler', 'HTML div', 'CSS flexbox') yazdığında veya arattığında, sistem bunu sanki yakın bir arkadaşı anlatıyormuş gibi çok basit, samimi ve eğlenceli bir Türkçe dille açıklayacak.
+
+Kod Örneği ve Çıktı Simülasyonu: Açıklamanın hemen altına koyu modda görünen net bir kod örneği (code snippet) yerleştir. Bu kod bloğunun hemen altına 'Program Çıktısı:' başlıklı bir terminal alanı ekleyerek, o kod çalışınca ekranda nasıl bir sonuç vereceğini simüle et.
+
+Tek Tıkla Kopyala: Kod bloklarının sağ üst köşesine, kodu kolayca panoya kopyalamak için dinamik bir 'Kopyala' butonu/ikonu ekle.
+
+3. İNTERAKTİF ÖZELLİKLER & MİKRO-ETKİLEŞİMLER
+Derinlemesine Öğren: Sonuç ekranına 'Daha Derinlemesine Anlat' diye parlayan, siber mavi renkli bir buton ekle. Basılınca AI konuyu daha detaylı ve bol örnekli açıklasın.
+
+Yol Haritası (Roadmap): Açıklamaların altına 'Sıradaki Adım Ne?' butonu koy. Basılınca o konuyu pekiştirmek için izlenmesi gereken 3 maddelik kısa bir plan önersin.
+
+Kendini Test Et (10 Soruluk İnteraktif Quiz): Her terim anlatımının altına veya ana menüye 'Kendini Test Et' butonu ekle. Basılınca kullanıcının seviyesini ölçen, şık ve interaktif 10 soruluk bir test (quiz) başlasın. Doğru/yanlış cevaplar anında geri bildirim versin ve final skoru veritabanına kaydedilsin.
+
+Favorilere Ekle: Her bilgi kartının köşesine bir yıldız ikonu ekle; kullanıcılar bu bilgileri 'Kaydedilenler' listesine atabilsin ve bu veri kalıcı olsun.
+
+4. SİBER-PREMİUM & PINTEREST ESTETİĞİ (GÖRSEL KURALLAR)
+Renk Paleti & Vibe: Beyaz ekranı tamamen yok et! Arka plan tamamen mat siyah ve koyu gri tonlarında olsun (#050605). Detaylar, butonlar ve ikonlar için göz yormayan, loş ama asil bir 'Neon Yeşil' (Matrix yeşili ama modern) veya 'Siber Mavi' kullan.
+
+Arka Plan Dinamiği: Arka planda çok hafif, belli belirsiz aşağı doğru akan matrix sayıları veya loş bir dijital ağ (mesh) görüntüsü ekle ki ekran 'canlı' dursun.
+
+Efektler & Font: Giriş kutusu ve sonuç alanları 'Glassmorphism' (cam efekti) olsun; arkası bulanık, hafif şeffaf ve ince parlayan kenarları (outer glow) bulunsun. Başlıkları Gümüş/Beyaz geçişli (gradient text) yap. Yazılımcıların sevdiği 'JetBrains Mono' veya 'Fira Code' fontlarını kullan.
+
+Mobil Deneyim: Ekran çok ferah olmalı ve mobil cihazlarda (max-width: 430px) tıpkı yerel bir mobil uygulama gibi hissettirmeli. Bütün butonlara basıldığında çok hafifçe küçülüp geri büyüme (scale 0.95) mikro-etkileşim efekti ekle.
+
+5. PWA VE DEPLOY HAZIRLIĞI
+PWA Altyapısı: Uygulamanın manifest.json ve service-worker.js dosyalarını oluştur. Uygulama ismi 'CodeBuddy', tema rengi '#000000' olsun.
+
+Uygulama İkonu (Premium Minimal): Siyah ve yuvarlatılmış kare bir zemin üzerine, Glassmorphism efektiyle hafif şeffaf duran, iridyum gümüşünden yapılmış ve üzerine hafif mavi-mor bir ışık vuruyormuş gibi duran minimal bir ( </> ) işareti ve tam ortasında belli belirsiz parlayan bir gümüş nokta yerleştir.
+
+Vercel Dağıtımı: Projenin Vercel üzerinde tek tıkla sorunsuz deploy edilebilmesi için gerekli vercel.json konfigürasyonunu ve ortam değişkenleri (Environment Variables) yapısını hazırla.
+
+Lütfen bu yapıyı tek seferde, modüler ve temiz bir dosya düzeniyle (index.html, style.css, script.js, server.js) oluştur."
