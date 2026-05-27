@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Search } from "lucide-react";
+import { Search, AlertCircle } from "lucide-react";
 
 const TRENDING = [
   "c# döngüler",
@@ -16,15 +16,27 @@ const TRENDING = [
 export default function Home() {
   const [, setLocation] = useLocation();
   const [term, setTerm] = useState("");
+  const [showError, setShowError] = useState(false);
+
+  const doSearch = (q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 2800);
+      return;
+    }
+    setShowError(false);
+    setLocation(`/explain/${encodeURIComponent(trimmed)}`);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = term.trim();
-    if (q) setLocation(`/explain/${encodeURIComponent(q)}`);
+    doSearch(term);
   };
 
   const handleTag = (tag: string) => {
-    setLocation(`/explain/${encodeURIComponent(tag)}`);
+    setTerm(tag);
+    doSearch(tag);
   };
 
   return (
@@ -47,42 +59,61 @@ export default function Home() {
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="w-full">
+      <div className="w-full flex flex-col gap-2">
+        <form onSubmit={handleSearch} className="w-full">
+          <div
+            className="flex items-center rounded-2xl overflow-hidden transition-all"
+            style={{
+              background: 'rgba(6, 14, 8, 0.82)',
+              border: `1px solid ${showError ? 'rgba(255,80,80,0.45)' : 'rgba(0,255,65,0.16)'}`,
+              boxShadow: showError
+                ? '0 0 0 1px rgba(0,0,0,0.4), 0 0 20px rgba(255,60,60,0.08)'
+                : '0 0 0 1px rgba(0,0,0,0.4), 0 0 28px rgba(0,255,65,0.04)',
+            }}
+          >
+            <Search
+              className="w-4 h-4 ml-4 flex-shrink-0"
+              style={{ color: showError ? 'rgba(255,100,100,0.5)' : 'rgba(0,255,65,0.35)' }}
+            />
+            <input
+              value={term}
+              onChange={(e) => { setTerm(e.target.value); if (showError) setShowError(false); }}
+              placeholder="bir terim ya da kavram yaz..."
+              className="flex-1 bg-transparent outline-none py-3.5 px-3 text-sm font-mono"
+              style={{ color: 'rgba(215,240,220,0.88)', caretColor: '#00ff41' }}
+              data-testid="input-search"
+            />
+            <button
+              type="submit"
+              className="m-1.5 px-5 py-2 rounded-xl font-mono font-bold text-xs tracking-widest btn-press flex-shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, #00e035, #00c42c)',
+                color: '#030a04',
+                letterSpacing: '0.1em',
+                boxShadow: '0 0 14px rgba(0,255,65,0.2)',
+              }}
+              data-testid="btn-search"
+            >
+              SORGULA
+            </button>
+          </div>
+        </form>
+
+        {/* Inline empty-search error */}
         <div
-          className="flex items-center rounded-2xl overflow-hidden"
+          className="flex items-center gap-2 px-1 overflow-hidden transition-all"
           style={{
-            background: 'rgba(6, 14, 8, 0.82)',
-            border: '1px solid rgba(0,255,65,0.16)',
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.4), 0 0 28px rgba(0,255,65,0.04)',
+            maxHeight: showError ? '32px' : '0px',
+            opacity: showError ? 1 : 0,
+            transition: 'max-height 200ms ease, opacity 200ms ease',
           }}
         >
-          <Search
-            className="w-4 h-4 ml-4 flex-shrink-0"
-            style={{ color: 'rgba(0,255,65,0.35)' }}
-          />
-          <input
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            placeholder="bir terim ya da kavram yaz..."
-            className="flex-1 bg-transparent outline-none py-3.5 px-3 text-sm font-mono"
-            style={{ color: 'rgba(215,240,220,0.88)', caretColor: '#00ff41' }}
-            data-testid="input-search"
-          />
-          <button
-            type="submit"
-            className="m-1.5 px-5 py-2 rounded-xl font-mono font-bold text-xs tracking-widest btn-press flex-shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #00e035, #00c42c)',
-              color: '#030a04',
-              letterSpacing: '0.1em',
-              boxShadow: '0 0 14px rgba(0,255,65,0.2)',
-            }}
-            data-testid="btn-search"
-          >
-            SORGULA
-          </button>
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'rgba(255,100,100,0.7)' }} />
+          <span className="font-mono text-xs" style={{ color: 'rgba(255,120,120,0.65)' }}>
+            Lütfen bir terim yazın
+          </span>
         </div>
-      </form>
+      </div>
 
       {/* Robot + CTA text */}
       <div className="flex flex-col items-center gap-2 py-2">

@@ -230,3 +230,12 @@
   margin-left: 2px;
   animation: blink 1s step-end infinite;
 }
+
+/* ── Hide Replit badge ── */
+[data-replit-badge],
+#replit-badge,
+.replit-badge,
+iframe[src*="replit.com/badge"],
+iframe[src*="replit-badge"] {
+  display: none !important;
+}

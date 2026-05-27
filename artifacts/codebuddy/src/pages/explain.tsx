@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { Copy, Check, Star, Map, Zap, BookOpen, ChevronLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAddFavorite, useListFavorites, useGetRoadmap, getListFavoritesQueryKey } from "@workspace/api-client-react";
+import {
+  useAddFavorite,
+  useRemoveFavorite,
+  useListFavorites,
+  useGetRoadmap,
+  getListFavoritesQueryKey,
+} from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -29,7 +35,6 @@ function CodeBlock({ code }: { code: string }) {
         onClick={copy}
         className="absolute top-2 right-2 p-1.5 rounded-lg btn-press opacity-0 group-hover:opacity-100 transition-opacity"
         style={{ background: 'rgba(0,255,65,0.1)', border: '1px solid rgba(0,255,65,0.2)', color: 'rgba(0,255,65,0.7)' }}
-        data-testid="btn-copy-code"
       >
         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
       </button>
@@ -43,7 +48,6 @@ function renderText(text: string) {
   let last = 0;
   let match: RegExpExecArray | null;
   let key = 0;
-
   while ((match = codeBlockRegex.exec(text)) !== null) {
     if (match.index > last) {
       parts.push(
@@ -82,17 +86,24 @@ export default function Explain() {
   const [roadmap, setRoadmap] = useState<any>(null);
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteId, setFavoriteId] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const addFavMutation = useAddFavorite();
+  const removeFavMutation = useRemoveFavorite();
   const roadmapMutation = useGetRoadmap();
+
   const { data: favorites } = useListFavorites({
     query: { queryKey: getListFavoritesQueryKey(), enabled: !!token },
     request: { headers: { Authorization: `Bearer ${token}` } },
   });
 
   useEffect(() => {
-    if (favorites) setIsFavorited(favorites.some((f: any) => f.term === term));
+    if (favorites) {
+      const found = favorites.find((f: any) => f.term === term);
+      setIsFavorited(!!found);
+      setFavoriteId(found ? found.id : null);
+    }
   }, [favorites, term]);
 
   useEffect(() => {
@@ -175,14 +186,27 @@ export default function Explain() {
   }
 
   function handleFavorite() {
-    if (isFavorited) return;
-    addFavMutation.mutate({ data: { term, explanation: explanation.slice(0, 500) } }, {
-      onSuccess: () => {
-        setIsFavorited(true);
-        queryClient.invalidateQueries({ queryKey: getListFavoritesQueryKey() });
-        toast({ title: "Favorilere eklendi", description: `"${term}" kaydedildi.` });
-      },
-    });
+    if (isFavorited && favoriteId !== null) {
+      // Remove from favorites
+      removeFavMutation.mutate({ id: favoriteId }, {
+        onSuccess: () => {
+          setIsFavorited(false);
+          setFavoriteId(null);
+          queryClient.invalidateQueries({ queryKey: getListFavoritesQueryKey() });
+          toast({ title: "Favorilerden kaldırıldı", description: `"${term}" silindi.` });
+        },
+      });
+    } else {
+      // Add to favorites
+      addFavMutation.mutate({ data: { term, explanation: explanation.slice(0, 500) } }, {
+        onSuccess: (data: any) => {
+          setIsFavorited(true);
+          setFavoriteId(data?.id ?? null);
+          queryClient.invalidateQueries({ queryKey: getListFavoritesQueryKey() });
+          toast({ title: "Favorilere eklendi", description: `"${term}" kaydedildi.` });
+        },
+      });
+    }
   }
 
   const actionBtn = (onClick: () => void, icon: React.ReactNode, label: string, accent: string, testId: string) => (
@@ -196,6 +220,8 @@ export default function Explain() {
       {label}
     </button>
   );
+
+  const favIsPending = addFavMutation.isPending || removeFavMutation.isPending;
 
   return (
     <div className="flex flex-col gap-5">
@@ -212,15 +238,18 @@ export default function Explain() {
         </div>
         <button
           onClick={handleFavorite}
-          className="mt-0.5 p-2 rounded-lg btn-press flex-shrink-0"
+          disabled={favIsPending}
+          className="mt-0.5 p-2 rounded-lg btn-press flex-shrink-0 disabled:opacity-50"
           style={{
             background: isFavorited ? 'rgba(250,200,0,0.1)' : 'rgba(0,255,65,0.05)',
             border: `1px solid ${isFavorited ? 'rgba(250,200,0,0.3)' : 'rgba(0,255,65,0.1)'}`,
             color: isFavorited ? '#facc15' : 'rgba(160,190,168,0.4)',
+            transition: 'background 200ms, border-color 200ms, color 200ms',
           }}
           data-testid="btn-favorite"
+          title={isFavorited ? "Favorilerden kaldır" : "Favorilere ekle"}
         >
-          <Star className={`w-4 h-4 ${isFavorited ? "fill-yellow-400" : ""}`} />
+          <Star className={`w-4 h-4 transition-all ${isFavorited ? "fill-yellow-400 scale-110" : "scale-100"}`} />
         </button>
       </div>
 

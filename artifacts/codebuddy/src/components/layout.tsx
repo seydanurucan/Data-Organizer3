@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { MatrixBackground } from "./matrix-background";
-import { Terminal, Star, Trophy, MessageSquare, Home } from "lucide-react";
+import { Terminal, Star, Trophy, MessageSquare, Home, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 interface LayoutProps {
@@ -10,7 +10,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const isAuthPage = location.startsWith('/auth');
 
   return (
@@ -37,7 +37,24 @@ export function Layout({ children }: LayoutProps) {
                 CodeBuddy
               </span>
             </Link>
-            <div className="tag-pill">v1.0</div>
+
+            {isAuthenticated ? (
+              <button
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono text-xs btn-press"
+                style={{
+                  background: 'rgba(255,60,60,0.07)',
+                  border: '1px solid rgba(255,60,60,0.18)',
+                  color: 'rgba(255,100,100,0.7)',
+                }}
+                data-testid="btn-logout"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Çıkış
+              </button>
+            ) : (
+              <div className="tag-pill">v1.0</div>
+            )}
           </header>
         )}
 
@@ -77,7 +94,7 @@ function NavItem({ href, icon, label, active }: { href: string; icon: ReactNode;
           color: active ? '#00ff41' : 'rgba(180,200,185,0.45)',
           background: active ? 'rgba(0,255,65,0.07)' : 'transparent',
         }}
-        data-testid={`nav-${label.toLowerCase()}`}
+        data-testid={`nav-${label.toLowerCase().replace(' ', '-')}`}
       >
         {icon}
         <span className="text-[10px] font-mono font-medium tracking-wide">{label}</span>
