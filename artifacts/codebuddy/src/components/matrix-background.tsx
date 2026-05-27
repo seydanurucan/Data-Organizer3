@@ -16,21 +16,18 @@ export function MatrixBackground() {
     resize();
     window.addEventListener('resize', resize);
 
-    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>{}[]/\\|$#@!';
+    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ01';
     const charArr = chars.split('');
-    const fontSize = 13;
+    const fontSize = 11;
 
-    type Drop = { y: number; speed: number; opacity: number; length: number };
-    let columns: number;
-    let drops: Drop[];
+    type Drop = { y: number; speed: number };
+    let drops: Drop[] = [];
 
     const init = () => {
-      columns = Math.floor(canvas.width / fontSize);
+      const columns = Math.floor(canvas.width / fontSize);
       drops = Array.from({ length: columns }, () => ({
-        y: Math.random() * -canvas.height,
-        speed: 0.4 + Math.random() * 0.8,
-        opacity: 0.05 + Math.random() * 0.2,
-        length: 8 + Math.floor(Math.random() * 20),
+        y: Math.random() * canvas.height,
+        speed: 0.12 + Math.random() * 0.18,
       }));
     };
     init();
@@ -39,36 +36,23 @@ export function MatrixBackground() {
     let animId: number;
 
     const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(5, 9, 6, 0.18)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       for (let i = 0; i < drops.length; i++) {
         const drop = drops[i];
         const x = i * fontSize;
+        const y = drop.y;
 
-        for (let j = drop.length; j >= 0; j--) {
-          const y = drop.y - j * fontSize;
-          if (y < 0 || y > canvas.height) continue;
-
-          const tail = j / drop.length;
-          if (j === 0) {
-            ctx.fillStyle = `rgba(180, 255, 200, ${drop.opacity * 3.5})`;
-          } else if (j < 3) {
-            ctx.fillStyle = `rgba(0, 255, 65, ${drop.opacity * (1 - tail * 0.4)})`;
-          } else {
-            ctx.fillStyle = `rgba(0, 180, 50, ${drop.opacity * (1 - tail)})`;
-          }
-          ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
-          ctx.fillText(charArr[Math.floor(Math.random() * charArr.length)], x, y);
-        }
+        const alpha = 0.06 + Math.random() * 0.07;
+        ctx.fillStyle = `rgba(0, 220, 55, ${alpha})`;
+        ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
+        ctx.fillText(charArr[Math.floor(Math.random() * charArr.length)], x, y);
 
         drop.y += fontSize * drop.speed;
-        if (drop.y - drop.length * fontSize > canvas.height) {
-          drops[i] = {
-            y: -Math.random() * canvas.height * 0.5,
-            speed: 0.4 + Math.random() * 0.8,
-            opacity: 0.05 + Math.random() * 0.2,
-            length: 8 + Math.floor(Math.random() * 20),
-          };
+        if (drop.y > canvas.height) {
+          drop.y = -fontSize;
+          drop.speed = 0.12 + Math.random() * 0.18;
         }
       }
 
@@ -88,7 +72,7 @@ export function MatrixBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0, opacity: 0.55 }}
+      style={{ zIndex: 0, opacity: 1 }}
     />
   );
 }
