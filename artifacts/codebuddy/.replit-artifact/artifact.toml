@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "CodeBuddy AI Assistant"
+version = "1.0.0"
+id = "artifacts/codebuddy"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25571
+
+[services.development]
+run = "pnpm --filter @workspace/codebuddy run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/codebuddy", "run", "build" ]
+publicDir = "artifacts/codebuddy/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25571"
+BASE_PATH = "/"
