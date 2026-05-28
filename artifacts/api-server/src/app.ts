@@ -34,18 +34,23 @@ app.use("/api", router);
 
 // BU KISMI EN ALTA EKLEDİK
 // En alt kısmı şöyle yap:
+// Bu kısım API dışındaki tüm istekleri (ana sayfa gibi) karşılar
 if (process.env.NODE_ENV === "production") {
   const staticPath = path.resolve(__dirname, "../../codebuddy/dist");
+  
+  // Statik dosyaları (CSS, JS, resimler) sunar
   app.use(express.static(staticPath));
   
-  app.get("*", (req, res) => {
-    // Eğer index.html yoksa hata versin, nerede aradığını görelim
+  // Ana sayfayı veya React sayfalarını index.html'e yönlendirir
+  // Yıldız (*) yerine /* yazarak hatayı engelledik
+  app.get("/*", (req, res) => {
     res.sendFile(path.resolve(staticPath, "index.html"), (err) => {
       if (err) {
         res.status(404).send(`Dosya bulunamadı! Şurada arıyorum: ${staticPath}`);
       }
     });
   });
+}
 }
 
 export default app;
