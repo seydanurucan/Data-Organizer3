@@ -33,11 +33,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
 
 // BU KISMI EN ALTA EKLEDİK
+// En alt kısmı şöyle yap:
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.resolve(__dirname, "../../codebuddy/dist")));
+  const staticPath = path.resolve(__dirname, "../../codebuddy/dist");
+  app.use(express.static(staticPath));
   
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../../codebuddy/dist/index.html"));
+    // Eğer index.html yoksa hata versin, nerede aradığını görelim
+    res.sendFile(path.resolve(staticPath, "index.html"), (err) => {
+      if (err) {
+        res.status(404).send(`Dosya bulunamadı! Şurada arıyorum: ${staticPath}`);
+      }
+    });
   });
 }
 
