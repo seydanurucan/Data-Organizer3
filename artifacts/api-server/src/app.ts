@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import path from "path"; // Bunu ekledik
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -30,5 +31,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+// BU KISMI EN ALTA EKLEDİK
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.resolve(__dirname, "../../codebuddy/dist")));
+  
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../../codebuddy/dist/index.html"));
+  });
+}
 
 export default app;
