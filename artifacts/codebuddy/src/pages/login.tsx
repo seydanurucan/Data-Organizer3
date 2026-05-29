@@ -34,8 +34,10 @@ export default function Login() {
         toast({ title: "Erişim sağlandı.", description: "Sisteme hoşgeldiniz." });
         setLocation("/");
       },
-      onError: () => {
-        toast({ variant: "destructive", title: "Erişim reddedildi.", description: "E-posta veya şifre hatalı." });
+      onError: (err) => {
+        const serverMsg = (err as { data?: { error?: string } })?.data?.error;
+        const description = serverMsg ?? "E-posta veya şifre hatalı.";
+        toast({ variant: "destructive", title: "Erişim reddedildi.", description });
       },
     });
   };

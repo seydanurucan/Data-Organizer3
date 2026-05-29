@@ -35,8 +35,12 @@ export default function Register() {
         toast({ title: "Kayıt başarılı.", description: "Sisteme hoşgeldiniz." });
         setLocation("/");
       },
-      onError: () => {
-        toast({ variant: "destructive", title: "Kayıt başarısız.", description: "Bu e-posta adresi zaten kullanılıyor." });
+      onError: (err) => {
+        const serverMsg = (err as { data?: { error?: string } })?.data?.error;
+        const description = serverMsg === "Email already in use"
+          ? "Bu e-posta adresi zaten kullanılıyor."
+          : (serverMsg ?? "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.");
+        toast({ variant: "destructive", title: "Kayıt başarısız.", description });
       },
     });
   };
