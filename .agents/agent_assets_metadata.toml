@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "ptUIGoC8RMb_QEAC_WR6S"
+uri = "file://codebuddy.tar.gz"
+type = "unspecified"
+title = "CodeBuddy — Tüm Kaynak Kodlar"
